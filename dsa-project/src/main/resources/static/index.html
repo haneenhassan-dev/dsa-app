@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MiniOJ — Login / Register</title>
+    <style>
+        /* ---------- Reset & basics ---------- */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+        html,body { height: 100%; background: linear-gradient(180deg,#0f172a 0%, #071331 45%, #071331 100%); color: #0f172a; }
+
+        /* ---------- center layout ---------- */
+        .wrap {
+          min-height: 100vh;
+          display: grid;
+          place-items: center;
+          padding: 32px;
+        }
+
+        /* ---------- card ---------- */
+        .card {
+          width: 100%;
+          max-width: 920px;
+          background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+          border-radius: 14px;
+          padding: 28px;
+          display: grid;
+          grid-template-columns: 1fr 420px;
+          gap: 24px;
+          box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+          border: 1px solid rgba(255,255,255,0.04);
+          color: #e6eef8;
+        }
+
+        /* ---------- left promo ---------- */
+        .promo {
+          padding: 18px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+        .brand {
+          display:flex; align-items:center; gap:12px; margin-bottom: 18px;
+        }
+        .logo {
+          width:48px; height:48px; background:linear-gradient(135deg,#6EE7B7,#3B82F6); border-radius:10px; display:grid; place-items:center; color:#04263b; font-weight:700;
+        }
+        .title { font-size:20px; font-weight:600; letter-spacing:0.2px; color:#f8fafc; }
+        .subtitle { margin-top:8px; color:#cfe8ff88; line-height:1.4; }
+
+        .features { margin-top:18px; display:grid; gap:10px; }
+        .feature { display:flex; gap:10px; align-items:flex-start; color:#dbeafe; }
+        .dot { width:10px; height:10px; border-radius:50%; background:#60a5fa; margin-top:6px; }
+
+        /* ---------- right panel (tabs + forms) ---------- */
+        .panel {
+          background: rgba(255,255,255,0.02);
+          padding: 18px;
+          border-radius: 10px;
+          border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .tabs { display:flex; gap:8px; margin-bottom:12px; }
+        .tab {
+          flex:1;
+          text-align:center;
+          padding:10px 14px;
+          cursor:pointer;
+          border-radius:8px;
+          background:transparent;
+          color:#a8d0ff;
+          font-weight:600;
+          border:1px solid transparent;
+        }
+        .tab.active {
+          background: linear-gradient(90deg,#0ea5e9,#7c3aed);
+          color:white;
+          box-shadow: 0 6px 18px rgba(15,23,42,0.35);
+          border:1px solid rgba(255,255,255,0.06);
+        }
+
+        form { display:flex; flex-direction:column; gap:12px; margin-top:6px; }
+        .field { display:flex; flex-direction:column; gap:6px; }
+        label { font-size:13px; color:#cfe8ffb0; }
+        input[type="text"], input[type="email"], input[type="password"] {
+          padding:12px 14px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);
+          background: rgba(0,0,0,0.18); color: #e6eef8; outline:none; transition: border 120ms ease;
+        }
+        input:focus { border-color: rgba(124,58,237,0.9); box-shadow: 0 4px 16px rgba(59,130,246,0.08); }
+
+        .btn {
+          padding:11px 12px; border-radius:8px; font-weight:700; cursor:pointer; border:none;
+          background: linear-gradient(90deg,#06b6d4,#3b82f6); color:white;
+          box-shadow: 0 8px 20px rgba(3,105,161,0.12);
+        }
+        .btn.secondary { background: linear-gradient(90deg,#10b981,#06b6d4); }
+
+        .muted { font-size:13px; color:#9fbff8; }
+        .error { color:#ffb4b4; background: rgba(255, 0, 0, 0.04); padding:8px 10px; border-radius:8px; }
+        .success { color:#b7ffd9; background: rgba(10, 120, 60, 0.06); padding:8px 10px; border-radius:8px; }
+
+        /* ---------- small screen ---------- */
+        @media (max-width: 880px) {
+          .card { grid-template-columns: 1fr; padding: 18px; gap: 18px; }
+          .promo { order: 2; }
+          .panel { order: 1; }
+        }
+  /* problems table */
+  /* ---------- Home / Problems Table ---------- */
+.home {
+    margin-top: 20px;
+    color: white;
+}
+
+#problemsTable {
+    width: 100%;
+    border-collapse: collapse; /* remove double borders */
+}
+
+#problemsTable th,
+#problemsTable td {
+    border: 1px solid white;
+    padding: 8px;
+    text-align: left;
+}
+  /* problems table end */
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="card" role="main" aria-labelledby="welcome">
+        <!-- Left promo -->
+        <div class="promo" aria-hidden="false">
+            <div class="brand">
+                <div class="logo">MJ</div>
+                <div>
+                    <div class="title" id="welcome">MiniOJ</div>
+                    <div class="muted">A small LeetCode-like platform — Spring Boot + MySQL</div>
+                </div>
+            </div>
+
+            <p class="subtitle">Sign up quickly and start solving problems. Tokens are returned on login — use them to access protected APIs.</p>
+
+            <div class="features">
+                <div class="feature"><div class="dot"></div><div>JWT-based auth & protected endpoints</div></div>
+                <div class="feature"><div class="dot"></div><div>BCrypt password hashing</div></div>
+                <div class="feature"><div class="dot"></div><div>Ready to plug into your backend</div></div>
+            </div>
+        </div>
+
+        <!-- Right: tabs + forms -->
+        <div class="panel">
+            <div class="tabs" role="tablist" aria-label="Auth tabs">
+                <div class="tab active" data-tab="login" role="tab" aria-selected="true">Login</div>
+                <div class="tab" data-tab="register" role="tab" aria-selected="false">Register</div>
+            </div>
+
+            <div id="messages" style="margin-bottom:10px;"></div>
+
+            <!-- Login -->
+            <div id="login" class="content active" aria-hidden="false">
+                <form id="loginForm" autocomplete="off">
+                    <div class="field">
+                        <label for="loginUsername">Username</label>
+                        <input id="loginUsername" type="text" required />
+                    </div>
+                    <div class="field">
+                        <label for="loginPassword">Password</label>
+                        <input id="loginPassword" type="password" required />
+                    </div>
+                    <button class="btn" type="submit">Log in</button>
+                    <div style="display:flex; justify-content:space-between; margin-top:8px;">
+                        <div class="muted">Or use your account</div>
+                        <a href="#" id="tokenCheck" class="muted" style="text-decoration:none;">Check token</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Register -->
+            <div id="register" class="content" style="display:none;" aria-hidden="true">
+                <form id="registerForm" autocomplete="off">
+                    <div class="field">
+                        <label for="regUsername">Username</label>
+                        <input id="regUsername" type="text" required />
+                    </div>
+                    <div class="field">
+                        <label for="regEmail">Email</label>
+                        <input id="regEmail" type="email" required />
+                    </div>
+                    <div class="field">
+                        <label for="regPassword">Password</label>
+                        <input id="regPassword" type="password" required minlength="6" />
+                    </div>
+                    <button class="btn secondary" type="submit">Create account</button>
+                    <div style="margin-top:8px;" class="muted">By creating account you accept our terms.</div>
+                </form>
+            </div>
+
+        </div> <!-- panel -->
+    </div> <!-- card -->
+</div> <!-- wrap -->
+<div id="home" class="home" style="display:none;">
+    <h2>Welcome!</h2>
+    <table id="problemsTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Difficulty</th>
+            <th>Score</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+
+<script>
+    // -------------- CONFIG --------------
+    // Set this to your backend base URL. If frontend is served from same origin, use relative paths.
+    const API_BASE = "http://localhost:8080";
+
+    // -------------- helpers --------------
+    const tabs = document.querySelectorAll('.tab');
+    const contents = { login: document.getElementById('login'), register: document.getElementById('register') };
+    const messages = document.getElementById('messages');
+
+    function showMessage(text, type='error') {
+      messages.innerHTML = '';
+      if (!text) return;
+      const div = document.createElement('div');
+      div.className = type === 'error' ? 'error' : 'success';
+      div.textContent = text;
+      messages.appendChild(div);
+      setTimeout(() => { if (messages.contains(div)) messages.removeChild(div); }, 6000);
+    }
+
+    // -------------- tab logic --------------
+    tabs.forEach(t => {
+      t.addEventListener('click', () => {
+        tabs.forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        const name = t.dataset.tab;
+        // show/hide
+        for (const k in contents) {
+          if (k === name) {
+            contents[k].style.display = ''; contents[k].setAttribute('aria-hidden','false');
+          } else {
+            contents[k].style.display = 'none'; contents[k].setAttribute('aria-hidden','true');
+          }
+        }
+        messages.innerHTML = '';
+      });
+    });
+
+    // -------------- register --------------
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showMessage('', null);
+      const body = {
+        username: document.getElementById('regUsername').value.trim(),
+        email: document.getElementById('regEmail').value.trim(),
+        password: document.getElementById('regPassword').value
+      };
+      try {
+        const res = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const text = await res.text();
+        if (res.ok) {
+          showMessage('Registered successfully. Please login.', 'success');
+          // Switch to login tab
+          document.querySelector('.tab[data-tab="login"]').click();
+        } else {
+          showMessage(text || 'Register failed');
+        }
+      } catch (err) {
+        showMessage('Network error: ' + err.message);
+      }
+    });
+
+    // -------------- login --------------
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      showMessage('', null);
+      const body = {
+        username: document.getElementById('loginUsername').value.trim(),
+        password: document.getElementById('loginPassword').value
+      };
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+          const t = await res.text().catch(()=>null);
+          showMessage(t || 'Login failed');
+          return;
+        }
+
+        const data = await res.json();
+        if (data && data.token) {
+          localStorage.setItem('miniOJ_token', data.token);
+          showMessage('Login successful — token saved.', 'success');
+          loadProblems();
+        } else {
+          showMessage('Login succeeded but token missing.');
+        }
+      } catch (err) {
+        showMessage('Network error: ' + err.message);
+      }
+    });
+
+  async function loadProblems() {
+    const token = localStorage.getItem('miniOJ_token');
+    if (!token) { showMessage("No token found. Please login."); return; }
+
+    try {
+      const res = await fetch(`${API_BASE}/problems`, {
+        headers: { "Authorization": "Bearer " + token }
+      });
+
+      if (res.ok) {
+        const problems = await res.json();
+        renderProblems(problems);
+      } else {
+        showMessage("Failed to load problems");
+      }
+    }
+
+    catch (err) {
+      showMessage("Network error: " + err.message);
+    }
+  }
+
+  function renderProblems(problems) {
+    // Hide login/register panel
+    document.querySelector('.panel').style.display = 'none';
+
+    // Show home page
+    const home = document.getElementById('home');
+    home.style.display = 'block';
+
+    const tbody = document.querySelector("#problemsTable tbody");
+    tbody.innerHTML = "";
+    problems.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${p.id}</td><td>${p.title}</td><td>${p.difficulty}</td><td>${p.score}</td>`;
+      tbody.appendChild(tr);
+    });
+}
+
+
+
+
+    // -------------- check token & call protected api --------------
+    // document.getElementById('tokenCheck').addEventListener('click', async (e) => {
+    //   e.preventDefault();
+    //   const token = localStorage.getItem('miniOJ_token');
+    //   if (!token) { showMessage('No token found. Please login.'); return; }
+
+    //   try {
+    //     const res = await fetch(`${API_BASE}/api/me`, {
+    //       headers: { 'Authorization': 'Bearer ' + token }
+    //     });
+
+    //     if (res.ok) {
+    //       const json = await res.json();
+    //       showMessage('Token valid — user: ' + (json.username || json.userId), 'success');
+    //       console.log('Protected response:', json);
+    //     } else {
+    //       const t = await res.text().catch(()=>null);
+    //       showMessage('Protected call failed: ' + (t || res.status));
+    //       if (res.status === 401) {
+    //         // token invalid/expired — remove it
+    //         localStorage.removeItem('miniOJ_token');
+    //       }
+    //     }
+    //   } catch (err) {
+    //     showMessage('Network error: ' + err.message);
+    //   }
+    // });
+
+    // Optional: clear token on load if invalid etc.
+    // (You can add UI to logout if needed.)
+</script>
+
+<!-- ---------- NOTE ---------- -->
+<!--
+  Important:
+  - If you open this file via `file://...` the browser may block some requests depending on CORS / browser settings.
+  - Preferred: run a tiny static server (e.g., `npx serve` or `python -m http.server 5500`) or put it behind your Spring Boot static resource path.
+  - Ensure CORS is enabled on backend (example below).
+-->
+</body>
+</html>
