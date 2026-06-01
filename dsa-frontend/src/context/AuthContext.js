@@ -13,16 +13,16 @@ export const AuthProvider = ({children})=>{
         const token = localStorage.getItem('token');
         const savedUser = localStorage.getItem('user');
 
-        if(token && user){
+        if(token && savedUser){
             setIsAuthenticated(true);
-            setUser(JSON.parse(savedUser));
+            setUser(savedUser);
         }
         setLoading(false);
     },[]);
 
-    async function login(username, pasword){
+    async function login(username, password){
         try{
-            const  response = await authAPI.login(username,password);
+        const  response = await authAPI.login(username,password);
         localStorage.setItem('token',response.data.token);
         localStorage.setItem('user',username);
         setIsAuthenticated(true);

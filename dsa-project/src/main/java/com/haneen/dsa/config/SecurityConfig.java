@@ -19,11 +19,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(request -> {
+                    var config = new org.springframework.web.cors.CorsConfiguration();
+                    config.addAllowedOrigin("http://localhost:3000");
+                    config.addAllowedMethod("*");
+                    config.addAllowedHeader("*");
+                    return config;
+                }))
                 .csrf(csrf-> csrf.disable()) // stateless REST API, using JWT
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/", "/index.html", "/login.html", "/register.html").permitAll()  // allow register/login
+                        .requestMatchers("/auth/**", "/","index2.html", "login.html", "/register.html").permitAll()  // allow register/login
                         .anyRequest().authenticated()            // require auth for others
-                );
+                )
+                ;
 
         // Place JWT filter before Spring's username/password filter
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

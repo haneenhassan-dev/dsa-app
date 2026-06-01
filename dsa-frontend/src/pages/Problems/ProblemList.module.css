@@ -1,0 +1,150 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0f172a 0%, #071331 100%);
+  padding: 2rem;
+}
+
+.header {
+  max-width: 900px;
+  margin: 0 auto 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  color: #f8fafc;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.logoutBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.logoutBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}
+
+.grid {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.cardLeft {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.problemNumber {
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+  min-width: 2rem;
+}
+
+.problemTitle {
+  color: #e2e8f0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.cardRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.easy {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.medium {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+.hard {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+.score {
+  color: #64748b;
+  font-size: 0.875rem;
+  min-width: 3rem;
+  text-align: right;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  color: #94a3b8;
+  font-size: 1rem;
+}
+
+.error {
+  max-width: 900px;
+  margin: 2rem auto;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.empty {
+  text-align: center;
+  color: #64748b;
+  padding: 3rem;
+  font-size: 1rem;
+}

@@ -1,1 +1,8 @@
 dsa-project-local-copy/
+dsa-frontend/node_modules/
+dsa-frontend/build/
+dsa-project/target/
+dsa-project/.idea/
+.DS_Store
+prac/
+buynow/
