@@ -1,0 +1,23 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dsa-project        # your Maven project is in a subfolder
+
+    steps:
+      - uses: actions/checkout@v4            # clone the repo onto the fresh machine
+
+      - uses: actions/setup-java@v4          # install Java 21 (matches your pom.xml)
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven                       # reuse downloaded libraries between runs → faster
+
+      - run: chmod +x mvnw                   # the permission issue from earlier
+
+      - run: ./mvnw test -Dtest='!DsaApplicationTests'   # all tests EXCEPT the one needing MySQL
