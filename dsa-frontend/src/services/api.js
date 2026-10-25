@@ -73,4 +73,10 @@ export const getSubmissionsAPI = (id)=>{
     return api.get(`/submissions?problemId=${id}`);
 }
 
+export const getStarterCodeAPI = (problemId, language) => {
+    return api.get(`/problems/${problemId}/stub?language=${language}`);
+}
+
+export const getSubmissionByIdAPI = (id) => api.get(`/submissions/${id}`);
+
 export default api;

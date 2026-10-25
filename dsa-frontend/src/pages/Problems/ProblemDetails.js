@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { problemsAPI, submitCodeAPI, draftAPI, getSubmissionsAPI} from '../../services/api.js';
+import { problemsAPI, submitCodeAPI, draftAPI, getSubmissionsAPI, getStarterCodeAPI, getSubmissionByIdAPI} from '../../services/api.js';
+import {useAuth} from '../../context/AuthContext.js';
 import ReactMarkdown from 'react-markdown';
 import Editor from '@monaco-editor/react';
 import styles from './ProblemDetail.module.css';
@@ -16,11 +17,12 @@ export function ProblemDetail() {
     const [isSolved,setIsSolved] = useState(false);
     const [result, setResult] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const { userId } = useAuth();
 
     const codeRef = useRef(code);
     const languageRef = useRef(language);
     const hasEdited = useRef(false);
-
+    //const [starterCode, setStarterCode] = useState('');
 
     useEffect(()=>{
         codeRef.current = code;
@@ -43,6 +45,7 @@ export function ProblemDetail() {
         const handleBeforeUnload = () => {
             // sendBeacon sends data to your backend even during tab close
             // Regular axios/fetch would get cancelled, sendBeacon won't
+            console.log("draft saved when component unmounted");
             navigator.sendBeacon('http://localhost:8080/draft', JSON.stringify({
                 problemId: id,
                 code: codeRef.current,
@@ -75,18 +78,19 @@ export function ProblemDetail() {
                 console.log("type:", typeof response.data.submissions);
                 console.log("isArray:", Array.isArray(response.data.submissions));
                 setIsSolved(submissions.some(s=> s.status=='ACCEPTED'));
-                const localDraft = localStorage.getItem(`draft_${id}_${language}`);
-                const localTime = Number(localStorage.getItem(`draft_${id}_${language}_time`));
+                const localDraft = localStorage.getItem(`draft_${userId}_${id}_${language}`);
+                const localTime = Number(localStorage.getItem(`draft_${userId}_${id}_${language}_time`));
                 const draftResponse = await draftAPI.getDraft(id, language);
                 if(draftResponse.data.code && draftResponse.data.code != "No draft found"){
-                    console.log("Key looking for:", `draft_${id}_${language}`);
-                    console.log("LocalStorage value:", localStorage.getItem(`draft_${id}_${language}`));
+                    console.log("Key looking for:", `draft_${userId}_${id}_${language}`);
+                    console.log("LocalStorage value:", localStorage.getItem(`draft_${userId}_${id}_${language}`));
                     const dbTime = new Date(draftResponse.data.updatedAt).getTime();
                     console.log(dbTime);
                     console.log(localTime);
                     if(localDraft && localTime && new Date(localTime) > new Date (dbTime) ){
                         setCode(localDraft);
-                        draftAPI.saveDraft(id, localDraft, language);
+                        //draftAPI.saveDraft(id, localDraft, language);
+                        console.log("localtime is greater than db time");
                     }
                     else{
                         setCode(draftResponse.data.code);
@@ -94,20 +98,25 @@ export function ProblemDetail() {
                 }
                 else if(localDraft){
                     setCode(localDraft);
-                    console.log("Key looking for:", `draft_${id}_${language}`);
-                    console.log("LocalStorage value:", localStorage.getItem(`draft_${id}_${language}`));
-                    draftAPI.saveDraft(id, localDraft, language);
+                    console.log("Key local looking for:", `draft_${userId}_${id}_${language}`);
+                    console.log("LocalStorage value:", localStorage.getItem(`draft_${userId}_${id}_${language}`));
+                    //draftAPI.saveDraft(id, localDraft, language);
                 }
                 else{
-                    setCode("// Write your solution here\n");
-                    localStorage.setItem(`draft_${id}_${language}`,"// Write your solution here\n");
-                    localStorage.setItem(`draft_${id}_${language}_time`,Date.now().toString());
+                    let problemStub = await getStarterCodeAPI(id, language);
+                    problemStub = problemStub.data["starter code"];
+                    //setStarterCode(problemStub);
+                    setCode(problemStub);
+                    //setCode("// Write your solution here\n");
+                    localStorage.setItem(`draft_${userId}_${id}_${language}`,problemStub);
+                    localStorage.setItem(`draft_${userId}_${id}_${language}_time`,Date.now().toString());
                 }
 
                 
 
             } catch (err) {
                 setError('Failed to load problem.');
+                console.log(err);
             } finally {
                 setLoading(false);
             }
@@ -118,18 +127,52 @@ export function ProblemDetail() {
     async function handleSubmit() {
         setSubmitting(true);
         setResult(null);
+        const startTime = performance.now();  
         try {
             const response = await submitCodeAPI(problem.problemId, code, language);
-            setResult(response.data.status);
-            if (response.data.status === 'ACCEPTED') {
-                setIsSolved(true);
+            const submissionId = response.data.submissionId;  // the id backend now returns
+            setResult('RUNNING');                             // show "Running..." on screen
+            pollResult(submissionId, 0, startTime);     
+        } catch (err) {
+            setResult('ERROR');
+            setSubmitting(false);
+        } 
+    }
+
+    async function pollResult(submissionId, attempts, startTime) {
+        if (attempts > 40) {                    // safety: stop after ~1 minute
+            setResult('TIMEOUT');
+            setSubmitting(false);
+            return;
+        }
+        try {
+            const res = await getSubmissionByIdAPI(submissionId);
+            const status = res.data.status;
+    
+            if (status === 'RUNNING' || status === 'PENDING') {
+                // not finished — ask again in 1.5 seconds
+                setTimeout(() => pollResult(submissionId, attempts + 1, startTime), 1500);
+            } else {
+                // finished! (ACCEPTED / WRONG_ANSWER / COMPILATION_ERROR / etc.)
+                const elapsedMs = performance.now() - startTime; 
+                console.log(`Total time: ${Math.round(elapsedMs)} ms`);
+                setResult(status);
+                setSubmitting(false);
             }
         } catch (err) {
             setResult('ERROR');
-        } finally {
             setSubmitting(false);
         }
     }
+
+    async function handleReset() {
+        if (!window.confirm("...")) return;
+        const res = await getStarterCodeAPI(id, language);
+        setCode(res.data["starter code"]);
+        localStorage.removeItem(`draft_${userId}_${id}_${language}`);
+        localStorage.removeItem(`draft_${userId}_${id}_${language}_time`);
+        // + DB delete if you go that route
+      }
 
     if (loading) {
         return (
@@ -182,10 +225,13 @@ export function ProblemDetail() {
                             <option value="javascript">JavaScript</option>
                             <option value="cpp">C++</option>
                         </select>
+                        <div className={styles.actions}>
+                        <button className={styles.resetBtn} onClick={handleReset}>Reset</button>
                         <button className={styles.submitBtn} onClick={handleSubmit} disabled={submitting}>
                             {submitting ? 'Submitting...' : 'Submit'}
                         </button>
                     </div>
+                </div>
 
                     <Editor
                         height="calc(100vh - 200px)"
@@ -194,8 +240,8 @@ export function ProblemDetail() {
                         onChange={(value) => {
                             setCode(value);
                             hasEdited.current = true;
-                            localStorage.setItem(`draft_${id}_${language}`,value);
-                            localStorage.setItem(`draft_${id}_${language}_time`,Date.now().toString());
+                            localStorage.setItem(`draft_${userId}_${id}_${language}`,value);
+                            localStorage.setItem(`draft_${userId}_${id}_${language}_time`,Date.now().toString());
                         }}
                         theme="vs-dark"
                         options={{
@@ -213,6 +259,7 @@ export function ProblemDetail() {
                         {result === 'RUNTIME_ERROR' && 'Runtime Error'}
                         {result === 'TIME_LIMIT_EXCEEDED' && 'Time Limit Exceeded'}
                         {result === 'ERROR' && 'Submission Failed — Server Error'}
+                        {result === 'SYSTEM_ERROR' && 'Submission Failed — Server Error'}
                     </div>
                     )}
                 </div>
@@ -220,3 +267,4 @@ export function ProblemDetail() {
         </div>
     );
 }
+

@@ -6,3 +6,18 @@ dsa-project/.idea/
 .DS_Store
 prac/
 buynow/
+
+# personal — don't publish
+haneen_hassan_resume*
+new-chat-prompt*.md
+
+# secrets / local config
+.env
+*.env
+
+# editors / logs
+.idea/
+.vscode/
+*.log
+
+notes/

@@ -20,6 +20,13 @@ public class SubmissionController {
     @Autowired
     private SubmissionService submissionService;
 
+    @GetMapping("/{submissionId}")
+    public ResponseEntity<?> getSubmissionById(@PathVariable Long submissionId){
+        return submissionService.getSubmissionById(submissionId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @GetMapping
     public ResponseEntity<?> getSubmission(@RequestParam Long problemId){
         UserPrincipal principal = (UserPrincipal) SecurityContextHolder
@@ -30,11 +37,11 @@ public class SubmissionController {
     }
 
     @PostMapping
-    public ResponseEntity<?> submit(@RequestBody SubmissionRequest req) throws IOException, InterruptedException {
+    public ResponseEntity<?> submit(@RequestBody SubmissionRequest req) throws Exception, InterruptedException {
         UserPrincipal principal = (UserPrincipal) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
         Long userId = principal.getUserId();
-        String result = submissionService.submitProblem(req,userId);
-        return ResponseEntity.ok(Map.of("status",result));
+        Long submissionId = submissionService.submitProblem(req,userId);
+        return ResponseEntity.ok(Map.of("submissionId", submissionId, "status","RUNNING" ));
     }
 }

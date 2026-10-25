@@ -23,14 +23,15 @@ public class JwtUtil {
     }
 
     // Create JWT token with userId, username and role as claims
-    public String generateToken(Long userId, String username, String role) {
+    public String generateToken(Long userId, String username, String role, Long tenantOrgId) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
                 .setSubject(username)              // "sub" claim
                 .claim("userId", userId)           // custom claim
-                .claim("role", role)               // custom claim
+                .claim("role", role)            // custom claim
+                .claim("orgId",tenantOrgId)
                 .setIssuedAt(now)                  // "iat"
                 .setExpiration(expiry)             // "exp"
                 .signWith(key, SignatureAlgorithm.HS256)

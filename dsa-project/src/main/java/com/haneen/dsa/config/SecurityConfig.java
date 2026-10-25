@@ -28,10 +28,15 @@ public class SecurityConfig {
                 }))
                 .csrf(csrf-> csrf.disable()) // stateless REST API, using JWT
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/","index2.html", "login.html", "/register.html").permitAll()  // allow register/login
+                        .requestMatchers("/auth/**", "/","index2.html", "login.html", "/register.html","/error").permitAll()  // allow register/login
                         .anyRequest().authenticated()            // require auth for others
-                )
-                ;
+                ).exceptionHandling(ex -> ex.authenticationEntryPoint(
+                (request, response, authException) -> {
+                    response.setStatus(401);
+                    response.getWriter().write("Unauthorized");
+                }
+        ));
+
 
         // Place JWT filter before Spring's username/password filter
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

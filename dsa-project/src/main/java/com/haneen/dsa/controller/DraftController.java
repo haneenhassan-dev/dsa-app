@@ -33,6 +33,7 @@ public class DraftController {
         UserPrincipal principal = (UserPrincipal) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
         Long userId = principal.getUserId();
+        System.out.println("user id is "+ userId);
         User user = userRepository.findById(userId).orElseThrow(()-> new RuntimeException("User not found"));
         Problem problem = problemService.getProblemById(problemId);
 

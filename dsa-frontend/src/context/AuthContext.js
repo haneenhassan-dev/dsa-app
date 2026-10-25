@@ -3,11 +3,17 @@ import {authAPI} from "../services/api.js";
 
 const AuthContext = createContext();
 
+function decodeUserId(token) {
+    try { return JSON.parse(atob(token.split(".")[1])).userId; }
+    catch { return null; }
+  }
+
 export const AuthProvider = ({children})=>{
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
     const [loading, setLoading]= useState(true);
+    const [userId, setUserId] = useState(null);
 
     useEffect(()=>{
         const token = localStorage.getItem('token');
@@ -16,9 +22,11 @@ export const AuthProvider = ({children})=>{
         if(token && savedUser){
             setIsAuthenticated(true);
             setUser(savedUser);
+            setUserId(decodeUserId(token));
         }
         setLoading(false);
     },[]);
+
 
     async function login(username, password){
         try{
@@ -27,6 +35,7 @@ export const AuthProvider = ({children})=>{
         localStorage.setItem('user',username);
         setIsAuthenticated(true);
         setUser(username);
+        setUserId(decodeUserId(response.data.token));
 
         return {success : true};
         }
@@ -40,6 +49,11 @@ export const AuthProvider = ({children})=>{
     }
 
     async function logout (){
+        const uid = userId;
+        const prefix = `draft_${uid}_`;
+        Object.keys(localStorage)
+          .filter(k => k.startsWith(prefix))
+          .forEach(k => localStorage.removeItem(k));
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setIsAuthenticated(false);
@@ -47,7 +61,7 @@ export const AuthProvider = ({children})=>{
     }
 
     return (
-        <AuthContext.Provider value={{isAuthenticated, user, login, logout, loading}} >
+        <AuthContext.Provider value={{isAuthenticated, user, login, logout, loading, userId}} >
             {children}
         </AuthContext.Provider>
     )

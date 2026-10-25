@@ -38,6 +38,14 @@ public class JwtFilter extends OncePerRequestFilter {
                 Jws<Claims> jws = jwtUtil.validateAndParse(token); // validates signature + exp
                 Claims claims = jws.getBody();
 
+
+                Object orgIdObj = claims.get("orgId");
+
+                if (orgIdObj != null) {
+                    System.out.println("FILTER THREAD: [" + Thread.currentThread().getName() + "] Setting orgId: " + orgIdObj.toString());
+                    TenantContext.setTenantId(Long.valueOf(orgIdObj.toString()));
+                }
+
                 // parse userId (JJWT may return Integer or Long depending on serializer)
                 Object userIdObj = claims.get("userId");
                 Long userId = null;
@@ -61,6 +69,8 @@ public class JwtFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(principal, null, List.of(authority));
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
+                chain.doFilter(req, res);
+
             } catch (JwtException | IllegalArgumentException ex) {
                 // Invalid token: clear context and return 401
                 SecurityContextHolder.clearContext();
@@ -68,9 +78,21 @@ public class JwtFilter extends OncePerRequestFilter {
                 res.getWriter().write("Invalid or expired token");
                 return;
             }
+
+            finally {
+                TenantContext.clear();
+            }
+
         }
 
-        // Continue filter chain (if no token, SecurityConfig will decide access)
-        chain.doFilter(req, res);
+        else{
+            chain.doFilter(req, res);
+        }
+
+
+
+
+
+
     }
 }

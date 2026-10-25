@@ -1,6 +1,7 @@
 package com.haneen.dsa.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.TenantId;
 
 @Entity
 @Table(name = "submission_testcases")
@@ -28,7 +29,31 @@ public class SubmissionTestCase {
     @Column(name = "exec_time_ms")
     private Integer execTimeMs;
 
+    @TenantId
+    @Column(name = "org_id", nullable = false)
+    private Long tenantOrgId;
+
+    @ManyToOne
+    @JoinColumn(name="org_id", insertable = false, updatable = false)
+    private Organization organization;
+
+
     // Getters and Setters
+
+    public Long getTenantOrgId() {
+        return tenantOrgId;
+    }
+    public void setTenantOrgId(Long tenantOrgId) {
+        this.tenantOrgId = tenantOrgId;
+    }
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

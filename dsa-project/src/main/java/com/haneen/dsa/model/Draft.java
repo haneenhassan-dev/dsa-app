@@ -3,6 +3,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.TenantId;
 
 @Entity
 @Table(name="drafts")
@@ -30,6 +31,24 @@ public class Draft {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    @TenantId
+    @Column(name = "org_id", nullable = false)
+    private Long tenantOrgId;
+
+    @ManyToOne
+    @JoinColumn(name="org_id", insertable = false, updatable = false)
+    private Organization organization;
+
+
+    // Getters and setters
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {

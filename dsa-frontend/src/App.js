@@ -1,6 +1,7 @@
 import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
 import { useAuth, AuthProvider } from './context/AuthContext';
 import Login from './pages/Login/Login.js';
+import Signup from './pages/Signup/Signup.js';
 import { Problems } from './pages/Problems/ProblemList.js';
 import { ProblemDetail } from './pages/Problems/ProblemDetails.js';
 
@@ -20,7 +21,7 @@ function App() {
     <BrowserRouter>
     <Routes>
       <Route path = "/login" element = {<Login/>} />
-      {/* <Route path= "/signup" element = {<Signup/>}/> */} 
+      <Route path= "/signup" element = {<Signup/>}/> 
        { <Route path= "/problems" 
          element = {
           <ProtectedRoute>

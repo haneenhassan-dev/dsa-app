@@ -1,6 +1,8 @@
 package com.haneen.dsa.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.TenantId;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -33,7 +35,30 @@ public class Submission {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @TenantId
+    @Column(name = "org_id", nullable = false)
+    private Long tenantOrgId;
+
+    @ManyToOne
+    @JoinColumn(name="org_id", insertable=false, updatable=false)
+    private Organization organization;
+
     // Getters and Setters
+
+    public Long getTenantOrgId() {
+        return tenantOrgId;
+    }
+    public void setTenantOrgId(Long tenantOrgId) {
+        this.tenantOrgId = tenantOrgId;
+    }
+
+    public Organization getOrganization() {
+        return organization;
+    }
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
+    }
+
     public Long getSubmissionId() { return submissionId; }
     public void setSubmissionId(Long submissionId) { this.submissionId = submissionId; }
 

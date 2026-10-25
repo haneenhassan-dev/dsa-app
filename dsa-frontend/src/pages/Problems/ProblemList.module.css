@@ -148,3 +148,24 @@
   padding: 3rem;
   font-size: 1rem;
 }
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.resetBtn {
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: #e2e8f0;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.resetBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}

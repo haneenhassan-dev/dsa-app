@@ -4,6 +4,15 @@ public class RegisterRequest {
     private String username;
     private String email;
     private String password;
+    private String orgName;
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
 
     public RegisterRequest() {}
 

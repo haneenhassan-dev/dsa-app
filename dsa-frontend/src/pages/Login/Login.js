@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {useAuth} from '../../context/AuthContext.js';
 import styles from './Login.module.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function Login(){
     const [username, setUsername] = useState('');
@@ -12,9 +12,18 @@ export default function Login(){
     const {login} = useAuth();
 
     async function handleClick(e){
-        console.log("clicked");
         e.preventDefault();
-        
+        setError('');
+
+        if(!username || !password){
+            setError('Please enter both username and password');
+            return;
+        }
+
+        // Clear any expired token before login attempt
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+
         setLoading(true);
         const result = await login(username,password);
         setLoading(false);
@@ -26,23 +35,26 @@ export default function Login(){
         }
     }
 
-
     return (
-        <div className ={styles.container}>
+        <div className={styles.container}>
             <form onSubmit={handleClick} className={styles.form}>
-                <h2> Login to Dsa App</h2>
-                <input value={username} 
+                <h2>Login to Diyesay</h2>
+                {error.message && <div className={styles.error}>{error.message}</div>}
+                <input value={username}
                 onChange={(e)=> setUsername(e.target.value)}
-                placeholder="username"
+                placeholder="Username"
                 />
-                <input value={password} 
+                <input value={password}
                 onChange={(e)=> setPassword(e.target.value)}
-                placeholder="password"
+                placeholder="Password"
                 type="password"
                 />
                 <button type="submit" disabled={isloading}>
-                    {isloading ? "Login..." : "Log in"}
+                    {isloading ? "Logging in..." : "Log in"}
                 </button>
+                <div className={styles.signupLink}>
+                    Don't have an account? <Link to="/signup">Sign up</Link>
+                </div>
             </form>
         </div>
     )
